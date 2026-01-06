@@ -566,17 +566,17 @@ function M.count_day_stats()
     end
   end
   
-  -- Find end (search forwards for --- or next # date)
-  for i = row, #lines do
-    if lines[i]:match("^%-%-%-") or (i > row and lines[i]:match("^# %d%d%d%d%-%d%d%-%d%d")) then
-      day_end = i
-      break
-    end
-  end
-  
   if not day_start then
     print("Not inside a day entry")
     return
+  end
+  
+  -- Find end (search forwards from day_start for next # date or end of file)
+  for i = day_start + 1, #lines do
+    if lines[i]:match("^# %d%d%d%d%-%d%d%-%d%d") then
+      day_end = i - 1
+      break
+    end
   end
   
   day_end = day_end or #lines
@@ -594,8 +594,10 @@ function M.count_day_stats()
     end
   end
   
+  -- Get the date for the message
+  local day_header = lines[day_start]:match("^# (.+)")
   local percentage = total > 0 and math.floor((completed / total) * 100) or 0
-  print(string.format("Tasks: %d/%d completed (%d%%)", completed, total, percentage))
+  print(string.format("%s: %d/%d tasks completed (%d%%)", day_header, completed, total, percentage))
 end
 
 return M
