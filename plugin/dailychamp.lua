@@ -51,10 +51,6 @@ vim.api.nvim_create_user_command('DailyChampCopyTask', function()
   dailychamp.copy_task_to_tomorrow()
 end, { desc = 'Copy task to tomorrow' })
 
-vim.api.nvim_create_user_command('DailyChampGoal', function()
-  dailychamp.add_goal()
-end, { desc = 'Add goal' })
-
 vim.api.nvim_create_user_command('DailyChampNote', function()
   dailychamp.add_note()
 end, { desc = 'Add note' })
@@ -91,7 +87,6 @@ local function setup_keymaps()
   
   -- Section operations
   vim.keymap.set('n', leader .. 's', '<cmd>DailyChampSection<cr>', vim.tbl_extend('force', opts, { desc = 'New section' }))
-  vim.keymap.set('n', leader .. 'g', '<cmd>DailyChampGoal<cr>', vim.tbl_extend('force', opts, { desc = 'Add goal' }))
   vim.keymap.set('n', leader .. 'i', '<cmd>DailyChampNote<cr>', vim.tbl_extend('force', opts, { desc = 'Add note' }))
   
   -- Info
@@ -118,6 +113,12 @@ vim.api.nvim_create_autocmd({"BufEnter", "BufWinEnter"}, {
     
     -- Disable folding
     vim.wo.foldenable = false
+    
+    -- Disable markdown linting rules that don't apply to daily.md format
+    vim.b.markdownlint_disable_rules = {
+      "MD025",  -- Multiple top-level headings (we have one per day)
+      "MD041",  -- First line should be top-level heading
+    }
     
     print("DailyChamp loaded - Use " .. dailychamp.config.leader .. " for commands")
   end,

@@ -6,14 +6,16 @@ Provides powerful shortcuts, templates, and keybindings for efficient daily plan
 
 ## Features
 
-- **Quick task creation** with templates
+- **Smart day creation** - Auto-copies sections from previous day
+- **Template system** - Create days from custom templates (work, personal, etc.)
+- **Quick task creation** with inline editing
 - **Smart navigation** (jump to today, jump to date)
-- **Task management** (toggle completion, copy to tomorrow)
-- **Template generation** (new day, sections, goals, notes)
+- **Intelligent task copying** - Copy tasks to same section in next day
+- **Task management** (toggle completion, smart copy)
 - **Statistics** (count completed/total tasks)
 - **Fully customizable** keybindings and templates
 - **Syntax highlighting** for completed/incomplete tasks
-- **Auto-folding** by day headers
+- **No folding** - All days visible by default
 
 ## Installation
 
@@ -23,12 +25,12 @@ Add to your `~/.config/nvim/lua/plugins/dailychamp.lua`:
 
 ```lua
 return {
-  "gs-deliverists-io/dailychamp.nvim",
-  ft = "markdown",
+  "gs-deliverists-io/daily-champ.nvim",
+  lazy = false,  -- Load at startup for immediate access
   config = function()
     require("dailychamp").setup({
       -- Optional: customize settings
-      file_path = vim.fn.expand("~/Nextcloud/Notes/dailychamp/daily.md"),
+      file_path = vim.fn.expand("~/Nextcloud/dailychamp/daily.md"),
       default_hours = "1.0",
     })
   end,
@@ -62,22 +64,21 @@ All keybindings use `<localleader>` prefix (filetype-specific, customizable):
 ### Day Operations
 | Key | Command | Description |
 |-----|---------|-------------|
-| `<localleader>n` | `:DailyChampNewDay` | Insert new day at top (newest first) |
-| `<localleader>N` | `:DailyChampNewDayHere` | Insert new day at cursor |
+| `<localleader>n` | `:DailyChampNewDay` | Smart: Jump to today or create (copies from yesterday) |
+| `<localleader>N` | `:DailyChampNewDayPrompt` | Create day with date prompt + template picker |
 
 ### Task Operations
 | Key | Command | Description |
 |-----|---------|-------------|
-| `<localleader>a` | `:DailyChampQuickTask` | Add task (quick, inline edit) |
+| `<localleader>a` | `:DailyChampQuickTask` | Add task (quick, inline edit) ⭐ **Most used** |
 | `<localleader>A` | `:DailyChampTask` | Add task (with prompts) |
-| `<localleader>x` | `:DailyChampToggle` | Toggle task completion ([ ] ↔ [x]) |
-| `<localleader>c` | `:DailyChampCopyTask` | Copy current task to tomorrow |
+| `<localleader>x` | `:DailyChampToggle` | Toggle task completion ([ ] ↔ [x]) ⭐ **Most used** |
+| `<localleader>c` | `:DailyChampCopyTask` | Copy task to tomorrow (same section, creates if needed) |
 
 ### Section Operations
 | Key | Command | Description |
 |-----|---------|-------------|
 | `<localleader>s` | `:DailyChampSection` | Insert new section |
-| `<localleader>g` | `:DailyChampGoal` | Add goal (list item) |
 | `<localleader>i` | `:DailyChampNote` | Add note (list item) |
 
 ### Info
@@ -155,6 +156,34 @@ require("dailychamp").setup({
 })
 ```
 
+### Custom Templates
+
+Create reusable day templates in `templates/` directory (same location as your daily.md):
+
+```bash
+# Create templates directory
+mkdir -p ~/Nextcloud/dailychamp/templates
+
+# Create a work template
+cat > ~/Nextcloud/dailychamp/templates/work.md << 'EOF'
+## Morning Standup
+## Deep Work
+## Meetings
+## Tasks
+## Notes
+EOF
+
+# Create a weekend template
+cat > ~/Nextcloud/dailychamp/templates/weekend.md << 'EOF'
+## Goals
+## Projects
+## Learning
+## Reflection
+EOF
+```
+
+When you use `<localleader>N` (create day with prompt), you'll be able to select from your templates!
+
 ## Markdown Format
 
 The plugin works with semantic markdown - tasks (`- [ ]`) are recognized **anywhere** in the document!
@@ -183,8 +212,6 @@ Free paragraph text goes to reflections.
 ## Reflections
 End of day summary.
 
----
-
 # 2026-01-05 Monday
 ...
 ```
@@ -203,16 +230,15 @@ The `| X.Xh` time estimate is optional. Default is `1.0h`.
 
 All commands available via `:DailyChamp<Tab>`:
 
-- `:DailyChampNewDay` - Insert new day entry at top
-- `:DailyChampNewDayHere` - Insert new day entry at cursor
+- `:DailyChampNewDay` - Smart: Jump to today or create (copies from yesterday)
+- `:DailyChampNewDayPrompt` - Create day with date + template picker
 - `:DailyChampTask` - Insert task with prompts
 - `:DailyChampQuickTask` - Insert task inline (fastest)
 - `:DailyChampToggle` - Toggle task completion
 - `:DailyChampSection` - Insert new section
 - `:DailyChampJumpToday` - Jump to today's entry
 - `:DailyChampJumpDate` - Jump to specific date
-- `:DailyChampCopyTask` - Copy task to tomorrow
-- `:DailyChampGoal` - Add goal
+- `:DailyChampCopyTask` - Copy task to tomorrow (same section)
 - `:DailyChampNote` - Add note
 - `:DailyChampStats` - Show day statistics
 - `:DailyChampOpen` - Open daily.md file
@@ -221,24 +247,28 @@ All commands available via `:DailyChamp<Tab>`:
 
 ### Daily Workflow
 
-1. **Start your day**: `<localleader>o` to open daily.md
-2. **Jump to today**: `<localleader>t`
-3. **Add tasks quickly**: `<localleader>a` (opens inline)
+1. **Start your day**: `<localleader>o` to open daily.md (or use from anywhere!)
+2. **Create/jump to today**: `<localleader>n` (smart: jumps if exists, creates if not)
+3. **Add tasks quickly**: `<localleader>a` (opens inline edit)
 4. **Mark complete**: `<localleader>x` on task line
-5. **Check progress**: `<localleader>S`
+5. **Incomplete task?**: `<localleader>c` to copy to tomorrow
+6. **Check progress**: `<localleader>S`
 
-### Creating New Day
+### Creating New Days
 
-The plugin creates days in **reverse chronological order** (newest first):
+**Quick method** (`<localleader>n`):
+- Automatically copies sections from yesterday
+- If you added custom sections yesterday, they carry forward
+- Fastest for daily use
 
-```bash
-<localleader>n  # Inserts new day at top of file
-```
+**Template method** (`<localleader>N`):
+1. Prompts for date
+2. Shows template picker:
+   - 📅 Copy from previous day
+   - 📄 Your custom templates (work, weekend, etc.)
+3. Creates day with selected template
 
-Template automatically includes:
-- Date header (`# 2026-01-06 Tuesday`)
-- Configured sections
-- Day separator (`---`)
+**Example**: Create a work-specific day structure
 
 ### Copying Tasks Forward
 
@@ -246,15 +276,20 @@ Didn't finish a task today? Copy it to tomorrow:
 
 1. Move cursor to task line
 2. Press `<localleader>c`
-3. Task copied to tomorrow's Tasks section (as incomplete)
+3. Task automatically copied to tomorrow's **same section**
+4. If that section doesn't exist in tomorrow, it's created automatically
+
+**Smart copying**: If your task is in "## Deep Work", it goes to tomorrow's "## Deep Work" section!
 
 ### Custom Sections
 
-Not limited to Goals/Tasks/Notes/Reflections! Create any section:
+Not limited to default sections! Create any section you need:
 
 ```bash
 <localleader>s  # Prompts for section name
 ```
+
+Your custom sections automatically carry forward when you create new days.
 
 ## Syntax Highlighting
 
@@ -263,15 +298,9 @@ The plugin automatically highlights tasks:
 - **Incomplete tasks** (`- [ ]`) - Blue color
 - **Completed tasks** (`- [x]`) - Gray with strikethrough
 
-## Folding
+## Viewing
 
-Days are folded by headers for easy navigation:
-
-- `zo` - Open fold
-- `zc` - Close fold  
-- `za` - Toggle fold
-- `zR` - Open all folds
-- `zM` - Close all folds
+All days are visible by default (no folding). Use standard Vim folding commands if you want to collapse sections manually.
 
 ## Troubleshooting
 
