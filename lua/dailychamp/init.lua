@@ -97,13 +97,51 @@ function M.new_day(date_override)
   return lines
 end
 
--- Command: Insert new day at top (newest first)
+-- Command: Smart insert new day - jump to today if exists, create if not
 function M.insert_new_day()
-  local lines = M.new_day()
-  vim.api.nvim_buf_set_lines(0, 0, 0, false, lines)
-  -- Move cursor to first section
-  set_cursor_pos(3, 0) -- After first ## header
-  print("Created new day entry for " .. get_date_string())
+  local today = get_date_string()
+  local pattern = "^# " .. today
+  local line_num = find_line(pattern)
+  
+  if line_num then
+    -- Today exists, jump to it
+    set_cursor_pos(line_num, 0)
+    vim.cmd("normal! zz") -- Center screen
+    print("Jumped to today: " .. today)
+  else
+    -- Today doesn't exist, create it at top
+    local lines = M.new_day()
+    vim.api.nvim_buf_set_lines(0, 0, 0, false, lines)
+    -- Move cursor to first section
+    set_cursor_pos(3, 0) -- After first ## header
+    print("Created new day entry for " .. today)
+  end
+end
+
+-- Command: Insert new day with date prompt (for past/future days)
+function M.insert_new_day_with_prompt()
+  vim.ui.input({ 
+    prompt = "Date (YYYY-MM-DD): ",
+    default = get_date_string()
+  }, function(date)
+    if not date or date == "" then return end
+    
+    -- Check if this date already exists
+    local pattern = "^# " .. date
+    local line_num = find_line(pattern)
+    
+    if line_num then
+      set_cursor_pos(line_num, 0)
+      vim.cmd("normal! zz")
+      print("Entry for " .. date .. " already exists. Jumped to it.")
+    else
+      -- Create new day with custom date
+      local lines = M.new_day(date)
+      vim.api.nvim_buf_set_lines(0, 0, 0, false, lines)
+      set_cursor_pos(3, 0)
+      print("Created new day entry for " .. date)
+    end
+  end)
 end
 
 -- Command: Insert new day at cursor

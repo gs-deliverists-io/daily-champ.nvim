@@ -13,7 +13,11 @@ local dailychamp = require('dailychamp')
 -- Create user commands
 vim.api.nvim_create_user_command('DailyChampNewDay', function()
   dailychamp.insert_new_day()
-end, { desc = 'Insert new day entry at top' })
+end, { desc = 'Smart: Jump to today or create if missing' })
+
+vim.api.nvim_create_user_command('DailyChampNewDayPrompt', function()
+  dailychamp.insert_new_day_with_prompt()
+end, { desc = 'Create new day with date prompt' })
 
 vim.api.nvim_create_user_command('DailyChampNewDayHere', function()
   dailychamp.insert_new_day_at_cursor()
@@ -76,8 +80,8 @@ local function setup_keymaps()
   vim.keymap.set('n', leader .. 'j', '<cmd>DailyChampJumpDate<cr>', vim.tbl_extend('force', opts, { desc = 'Jump to date' }))
   
   -- Day operations
-  vim.keymap.set('n', leader .. 'n', '<cmd>DailyChampNewDay<cr>', vim.tbl_extend('force', opts, { desc = 'New day (top)' }))
-  vim.keymap.set('n', leader .. 'N', '<cmd>DailyChampNewDayHere<cr>', vim.tbl_extend('force', opts, { desc = 'New day (cursor)' }))
+  vim.keymap.set('n', leader .. 'n', '<cmd>DailyChampNewDay<cr>', vim.tbl_extend('force', opts, { desc = 'Smart: Jump to today or create' }))
+  vim.keymap.set('n', leader .. 'N', '<cmd>DailyChampNewDayPrompt<cr>', vim.tbl_extend('force', opts, { desc = 'New day with date prompt' }))
   
   -- Task operations
   vim.keymap.set('n', leader .. 'a', '<cmd>DailyChampQuickTask<cr>', vim.tbl_extend('force', opts, { desc = 'Add task (quick)' }))
@@ -112,10 +116,8 @@ vim.api.nvim_create_autocmd({"BufEnter", "BufWinEnter"}, {
     vim.wo.wrap = true
     vim.wo.linebreak = true
     
-    -- Folding by headers
-    vim.wo.foldmethod = "expr"
-    vim.wo.foldexpr = "v:lua.vim.treesitter.foldexpr()"
-    vim.wo.foldlevel = 1 -- Start with day headers folded
+    -- Disable folding
+    vim.wo.foldenable = false
     
     print("DailyChamp loaded - Use " .. dailychamp.config.leader .. " for commands")
   end,
