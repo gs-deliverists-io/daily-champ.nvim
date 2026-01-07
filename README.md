@@ -1,8 +1,10 @@
 # dailychamp.nvim
 
-A Neovim plugin for managing daily task markdown files with the DailyChamp App (Flutter).
+A Neovim plugin for managing daily task markdown files with the [DailyChamp App](https://github.com/gs-deliverists-io/daily-champ) (Flutter).
 
 Provides powerful shortcuts, templates, and keybindings for efficient daily planning and task management in markdown format. Works seamlessly with semantic markdown parsing - tasks can appear anywhere in your document!
+
+**Edit in Neovim, sync with your phone!** This plugin uses the same markdown format as the DailyChamp mobile/desktop app.
 
 ## Features
 
@@ -389,15 +391,21 @@ end, { desc = 'Open personal dailychamp' })
 
 ## Integration with DailyChamp App
 
-This plugin is designed to work seamlessly with the DailyChamp App (Flutter):
+This plugin is designed to work seamlessly with the [DailyChamp App](https://github.com/gs-deliverists-io/daily-champ) (Flutter):
 
-1. Both use the same markdown format
-2. Semantic parsing (tasks work anywhere)
-3. Supports all markdown features (bold, links, code, etc.)
-4. Reverse chronological order (newest first)
-5. 7-task limit enforced in app (not in Neovim)
+- **Same markdown format** - Edit in Neovim, view on your phone/desktop
+- **Semantic parsing** - Tasks work anywhere in the document
+- **Full markdown support** - Bold, links, code blocks, etc.
+- **Reverse chronological** - Newest days at the top
+- **Sync via cloud** - Use Nextcloud, Dropbox, iCloud, or any file sync
 
-Edit in Neovim, view on your phone!
+**Workflow:**
+1. Edit your daily.md in Neovim (powerful keyboard shortcuts)
+2. Sync via your cloud provider
+3. View and check off tasks on mobile with the DailyChamp app
+4. Changes sync back to Neovim
+
+Get the DailyChamp app: [github.com/gs-deliverists-io/daily-champ](https://github.com/gs-deliverists-io/daily-champ)
 
 ## License
 
